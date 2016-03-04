@@ -1,2 +1,2 @@
-event=button/brightnessdown
-action=/etc/acpi/brightness -10
+event=video/brightnessdown
+action=/etc/acpi/brightness -50

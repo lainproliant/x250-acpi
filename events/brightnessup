@@ -1,2 +1,2 @@
-event=button/brightnessup
+event=video/brightnessup
 action=/etc/acpi/brightness +10
