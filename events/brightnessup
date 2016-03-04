@@ -1,2 +1,2 @@
 event=video/brightnessup
-action=/etc/acpi/brightness +10
+action=/etc/acpi/brightness.py +10
