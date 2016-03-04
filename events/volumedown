@@ -1,0 +1,3 @@
+event=button/volumedown
+action=amixer -c 1 sset -M Master 5%%- unmute -q
+

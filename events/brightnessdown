@@ -1,0 +1,2 @@
+event=button/brightnessdown
+action=/etc/acpi/brightness -10

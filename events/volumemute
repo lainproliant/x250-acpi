@@ -1,0 +1,2 @@
+event=button/mute
+action=amixer -c 1 sset Master toggle -q
