@@ -1,52 +1,65 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 
 BACKLIGHT = "/sys/class/backlight/amdgpu_bl1"
 
-ACTUAL_BRIGHTNESS = f"{BACKLIGHT}/actual_brightness"
 MAX_BRIGHTNESS = f"{BACKLIGHT}/max_brightness"
 BRIGHTNESS = f"{BACKLIGHT}/brightness"
 
+def clear_line():
+    sys.stdout.write("\033[F\033[K")
+    sys.stdout.flush()
+
+def pct_of(total, ratio):
+    return int(round((float(ratio) / float(total)) * 100))
+
+def pct_ratio(total, pct):
+    return int(round((pct / 100) * float(total)))
+
+def read_brightness(file=BRIGHTNESS):
+    with open(file, "r") as infile:
+        return int(infile.read())
+
+def write_brightness(value):
+    with open(BRIGHTNESS, "w") as outfile:
+        print(f"{value}", file=outfile)
+    return read_brightness()
+
+def print_brightness(header="Brightness:"):
+    current_brightness = read_brightness()
+    max_brightness = read_brightness(MAX_BRIGHTNESS)
+
+    print(
+        "%s %d / %d (%d%%)"
+        % (
+            header,
+            current_brightness,
+            max_brightness,
+            pct_of(max_brightness, current_brightness),
+        )
+    )
 
 def main(argv):
     current_brightness = 0
     max_brightness = 0
     target_brightness = 0
 
-    def print_brightness(header="Brightness:"):
-        print(
-            "%s %d / %d (%d%%)"
-            % (
-                header,
-                current_brightness,
-                max_brightness,
-                int(float(current_brightness) / float(max_brightness) * 100),
-            )
-        )
-
-    with open(ACTUAL_BRIGHTNESS) as infile:
-        current_brightness = int(infile.read())
-
-    with open(MAX_BRIGHTNESS) as infile:
-        max_brightness = int(infile.read())
+    current_brightness = read_brightness()
+    max_brightness = read_brightness(MAX_BRIGHTNESS)
 
     if not argv:
         print_brightness()
 
     else:
-        delta = int(argv[0])
+        pct = int(argv[0])
+        current_pct = pct_of(max_brightness, current_brightness)
 
         if argv[0][0] in ("+", "-"):
-            target_brightness = current_brightness + delta
-        else:
-            target_brightness = delta
+            pct = current_pct + pct
 
-        target_brightness = max(0, min(max_brightness, target_brightness))
-
-        with open(BRIGHTNESS, "w") as outfile:
-            print("%d" % target_brightness, file=outfile)
-
-        current_brightness = target_brightness
+        pct = max(0, min(100, pct))
+        target_brightness = int((pct / 100) * max_brightness)
+        write_brightness(target_brightness)
 
         print_brightness("Set brightness:")
 
